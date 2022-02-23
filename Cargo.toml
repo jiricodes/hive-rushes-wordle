@@ -1,0 +1,7 @@
+[workspace]
+members  = [
+    "lib/",
+    "assistant/",
+    "game/",
+    "player",
+]
