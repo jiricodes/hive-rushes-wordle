@@ -10,9 +10,16 @@ fn main() {
         .value_of("dict")
         .expect("dict file expected as argument");
     let mut d = Database::load(path);
-    dbg!(&d);
-    d.prune_letter_at_position('c', 3);
-    dbg!(&d);
-    d.prune_letter_any_position('e');
-    dbg!(&d);
+    d.prune_grey('h');
+    d.prune_grey('l');
+    d.prune_yellow('e', 1);
+    d.prune_yellow('o', 4);
+    d.prune_green('v', 3);
+    d.prune_green('e', 4);
+    d.prune_grey('g');
+    d.prune_green('o', 2);
+    d.prune_grey('a');
+    d.prune_grey('b');
+    d.prune_grey('d');
+    dbg!(d.get_available());
 }

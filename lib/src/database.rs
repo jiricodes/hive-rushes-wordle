@@ -66,7 +66,7 @@ impl Database {
 
     /// Moves given word from available to discarded
     /// Panics if word not in the available set
-    pub fn discard(&mut self, word: &String) {
+    fn discard(&mut self, word: &String) {
         let w = self
             .available
             .take(word)
@@ -74,8 +74,8 @@ impl Database {
         self.discarded.insert(w);
     }
 
-    /// Removes all words from the available set that don't have given `letter` at specified `position`
-    pub fn prune_letter_at_position(&mut self, letter: char, position: usize) {
+    /// Removes all words from the available set that DON'T HAVE given `letter` at specified `position`
+    fn prune_letter_at_position(&mut self, letter: char, position: usize) {
         let mut to_prune: IndexSet<String> = IndexSet::new();
         for word in self.available.iter() {
             let c = word.chars().nth(position).expect("postion out of index");
@@ -88,8 +88,23 @@ impl Database {
         }
     }
 
+    /// Removes all words from the available set that HAVE given `letter` at specified `position`
+    /// This can be used when guessed correct letter, but at wrong position
+    fn prune_letter_at_incorrect_position(&mut self, letter: char, position: usize) {
+        let mut to_prune: IndexSet<String> = IndexSet::new();
+        for word in self.available.iter() {
+            let c = word.chars().nth(position).expect("postion out of index");
+            if c == letter {
+                to_prune.insert(word.clone());
+            }
+        }
+        for word in to_prune.iter() {
+            self.discard(word);
+        }
+    }
+
     /// Removes all words that don't contain given `letter`.
-    pub fn prune_letter_any_position(&mut self, letter: char) {
+    fn prune_letter_any_position(&mut self, letter: char) {
         let mut to_prune: IndexSet<String> = IndexSet::new();
         for word in self.available.iter() {
             if !word.contains(letter) {
@@ -99,6 +114,40 @@ impl Database {
         for word in to_prune.iter() {
             self.discard(word);
         }
+    }
+
+    /// Removes all words that contain specific letter
+    fn prune_letter(&mut self, letter: char) {
+        let mut to_prune: IndexSet<String> = IndexSet::new();
+        for word in self.available.iter() {
+            if word.contains(letter) {
+                to_prune.insert(word.clone());
+            }
+        }
+        for word in to_prune.iter() {
+            self.discard(word);
+        }
+    }
+
+    /// Available words getter (pointer)
+    pub fn get_available(&self) -> &IndexSet<String> {
+        &self.available
+    }
+
+    /// Wrapper for GREEN status - aka correct letter at correct position
+    pub fn prune_green(&mut self, letter: char, position: usize) {
+        self.prune_letter_at_position(letter, position);
+    }
+
+    /// Wrapper for YELLOW status - aka  correct letter at incorrect position
+    pub fn prune_yellow(&mut self, letter: char, position: usize) {
+        self.prune_letter_at_incorrect_position(letter, position);
+        self.prune_letter_any_position(letter);
+    }
+
+    /// Wrapper for GREY status - aka incorrect letter
+    pub fn prune_grey(&mut self, letter: char) {
+        self.prune_letter(letter);
     }
 }
 
