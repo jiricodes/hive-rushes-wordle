@@ -11,9 +11,8 @@ fn main() {
         .expect("dict file expected as argument");
     let mut d = Database::load(path);
     dbg!(&d);
-    let w = d.get_random();
-    println!("Random word: {}", w);
-    dbg!(&d);
     d.prune_letter_at_position('c', 3);
+    dbg!(&d);
+    d.prune_letter_any_position('e');
     dbg!(&d);
 }

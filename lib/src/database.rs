@@ -87,6 +87,19 @@ impl Database {
             self.discard(word);
         }
     }
+
+    /// Removes all words that don't contain given `letter`.
+    pub fn prune_letter_any_position(&mut self, letter: char) {
+        let mut to_prune: IndexSet<String> = IndexSet::new();
+        for word in self.available.iter() {
+            if !word.contains(letter) {
+                to_prune.insert(word.clone());
+            }
+        }
+        for word in to_prune.iter() {
+            self.discard(word);
+        }
+    }
 }
 
 impl Default for Database {
