@@ -14,3 +14,6 @@ test-verbal:
 
 doc:
 	cargo doc --no-deps --open
+
+game:
+	cargo run -p game -- data/possible_words.txt

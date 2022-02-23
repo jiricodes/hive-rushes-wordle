@@ -108,7 +108,7 @@ impl Wordle {
         let mut status: WordStatus = Vec::new();
         for (position, letter) in word.chars().enumerate() {
             let c = self.word.chars().nth(position).unwrap();
-            eprintln!("({}: {} | {})", position, letter, c);
+            // eprintln!("({}: {} | {})", position, letter, c);
             if letter == c {
                 status.push(LetterStatus::Green);
             } else if self.word.contains(letter) {

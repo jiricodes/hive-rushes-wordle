@@ -25,6 +25,8 @@ Should play the game itself
 ### Game
 Clone of the Wordle game, for your pleasure.
 
+Default game can be launched with `make game`.
+
 ## Contributors
 (Jiri Novotny)[jiricodes.com]
 (Carl Nysten)[https://github.com/crl-n]

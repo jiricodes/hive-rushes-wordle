@@ -206,7 +206,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>
                 None => ' ',
             };
             let label = format!("{}", value);
-            println!("[{}, {}]: {}", row, col, label);
+            // println!("[{}, {}]: {}", row, col, label);
             commands
                 .spawn_bundle(SpriteBundle {
                     sprite: Sprite {
@@ -252,7 +252,7 @@ fn keyboard_input(
     mut game: ResMut<Game>,
 ) {
     for ev in char_evr.iter() {
-        println!("Got char: '{}'", ev.char);
+        // println!("Got char: '{}'", ev.char);
         if ev.char.is_ascii_alphabetic() && guess.word.len() < 5 {
             let label = format!("{}", ev.char).to_uppercase();
             guess.word.push(ev.char);
@@ -267,12 +267,12 @@ fn keyboard_input(
                 }
             }
             cursor.position.col = (cursor.position.col + 1).min(5);
-            println!("Cursor {:?}", cursor.position);
+            // println!("Cursor {:?}", cursor.position);
         }
     }
 
     if keys.just_released(KeyCode::Return) && guess.word.len() == 5 {
-        println!("Text input: {}", guess.word);
+        // println!("Text input: {}", guess.word);
         match game.make_guess_simple(&guess.word.to_lowercase()) {
             GameStatus::Ok(val) => {
                 game.colors[cursor.position.row] = val;
@@ -291,11 +291,11 @@ fn keyboard_input(
                 println!("VICTORY!");
             }
         }
-        println!("Cursor {:?}", cursor.position);
+        // println!("Cursor {:?}", cursor.position);
     }
 
     if keys.just_released(KeyCode::Back) {
-        println!("Removing last letter");
+        // println!("Removing last letter");
         guess.word.pop();
         if cursor.position.col != 0 {
             cursor.position.col -= 1;
@@ -312,6 +312,6 @@ fn keyboard_input(
                 val.0.clear();
             }
         }
-        println!("Cursor {:?}", cursor.position);
+        // println!("Cursor {:?}", cursor.position);
     }
 }
