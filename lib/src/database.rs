@@ -10,8 +10,10 @@ use std::path::Path;
 
 /// Main database struct
 ///
-/// Using IndexSet as opposed to HashSet. The [IndexSet](https://docs.rs/indexmap/latest/indexmap/set/struct.IndexSet.html) allows us to
-/// efficiently random sample the words.
+/// Using IndexSet as opposed to HashSet. The [IndexSet](https://docs.rs/indexmap/latest/indexmap/set/struct.IndexSet.html)
+/// allows us to efficiently random sample the words.
+/// Using HashSet like structure helps discarding possible
+/// duplicates within the given dict.
 ///
 /// WIP
 /// perhaps we dont need discarded, however lets keep if for now
@@ -60,6 +62,30 @@ impl Database {
         let mut rng = thread_rng();
         let i = rng.gen_range(0..self.available.len()) as usize;
         self.available.get_index(i).unwrap().clone()
+    }
+
+    /// Moves given word from available to discarded
+    /// Panics if word not in the available set
+    pub fn discard(&mut self, word: &String) {
+        let w = self
+            .available
+            .take(word)
+            .expect("Word not in available set");
+        self.discarded.insert(w);
+    }
+
+    /// Removes all words from the available set that don't have given `letter` at specified `position`
+    pub fn prune_letter_at_position(&mut self, letter: char, position: usize) {
+        let mut to_prune: IndexSet<String> = IndexSet::new();
+        for word in self.available.iter() {
+            let c = word.chars().nth(position).expect("postion out of index");
+            if c != letter {
+                to_prune.insert(word.clone());
+            }
+        }
+        for word in to_prune.iter() {
+            self.discard(word);
+        }
     }
 }
 

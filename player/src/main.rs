@@ -9,8 +9,11 @@ fn main() {
     let path = args
         .value_of("dict")
         .expect("dict file expected as argument");
-    let d = Database::load(path);
+    let mut d = Database::load(path);
     dbg!(&d);
-    println!("{}", d.get_random());
+    let w = d.get_random();
+    println!("Random word: {}", w);
+    dbg!(&d);
+    d.prune_letter_at_position('c', 3);
     dbg!(&d);
 }
