@@ -1,5 +1,5 @@
-use lib::database::Database;
-use crate::suggestion::*;
+use crate::database::Database;
+use crate::suggestion::SuggestionCollection;
 
 const MAX_SUGGESTIONS: i32 = 25;
 
@@ -17,11 +17,13 @@ enum AssistantEnum {
 impl Assistant {
 
     /// Constructor
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(database: Database) -> Self {
+        Self {
+            database,
+            ..Default::default()
+        }
     }
 
-    /// 
     pub fn display_suggestions(&self) {
         for i in 0..MAX_SUGGESTIONS {
             let i = i as usize;

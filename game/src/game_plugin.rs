@@ -5,6 +5,8 @@ use bevy::prelude::*;
 use clap::{Arg as ClapArg, Command as ClapCommand};
 use lib::database::Database;
 use lib::game::{status_green, LetterStatus, WordStatus, Wordle};
+use lib::assistant::Assistant;
+
 use std::fmt;
 use std::fmt::Debug;
 use std::path::Path;
@@ -24,6 +26,7 @@ pub enum GameStatus<T> {
 pub struct Game {
     wordle: Wordle,
     database: Database,
+    assistant: Assistant,
     pub guesses: Vec<Option<String>>,
     pub colors: Vec<Vec<Color>>,
 }
@@ -37,6 +40,7 @@ impl Game {
         P: AsRef<Path> + Debug,
     {
         let database = Database::load(filename);
+        let assistant = Assistant::new(database.clone());
         let word = database.get_random();
         println!("Wordle game with: {}", word);
         let wordle = Wordle::new(word);
@@ -44,6 +48,7 @@ impl Game {
         Self {
             wordle,
             database,
+            assistant,
             guesses: vec![None; limit],
             colors: vec![vec![TILE_DEFAULT_COLOR; 5]; limit],
         }

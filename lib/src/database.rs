@@ -17,7 +17,7 @@ use std::path::Path;
 ///
 /// WIP
 /// perhaps we dont need discarded, however lets keep if for now
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Database {
     available: IndexSet<String>,
     discarded: IndexSet<String>,
