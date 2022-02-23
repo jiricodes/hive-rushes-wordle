@@ -34,7 +34,7 @@ impl LetterStatus {
 }
 
 /// Custom Type, consider using struct instead
-type WordStatus = Vec<LetterStatus>;
+pub type WordStatus = Vec<LetterStatus>;
 
 /// Helper function just to return the word status as `String`
 pub fn status_as_string(status: &WordStatus) -> String {

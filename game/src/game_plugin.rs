@@ -4,7 +4,7 @@ use bevy::input::ElementState;
 use bevy::prelude::*;
 use clap::{Arg as ClapArg, Command as ClapCommand};
 use lib::database::Database;
-use lib::game::{status_as_string, status_green, Wordle};
+use lib::game::{status_green, LetterStatus, WordStatus, Wordle};
 use std::fmt;
 use std::fmt::Debug;
 use std::path::Path;
@@ -14,7 +14,7 @@ pub enum GameStatus<T> {
     Ok(T),
     InvalidWord,
     GameOver,
-    Victory,
+    Victory(T),
 }
 
 /// Core Wordle Game struct
@@ -49,7 +49,7 @@ impl Game {
         }
     }
 
-    pub fn make_guess_simple(&mut self, word: &String) -> GameStatus<String> {
+    pub fn make_guess_simple(&mut self, word: &String) -> GameStatus<Vec<Color>> {
         if !self.database.contains(word) {
             return GameStatus::InvalidWord;
         }
@@ -58,11 +58,24 @@ impl Game {
         }
         let status = &self.wordle.guess_word(word);
         if status_green(&status) {
-            return GameStatus::Victory;
+            return GameStatus::Victory(status_as_colors(&status));
         } else {
-            GameStatus::Ok(status_as_string(&status))
+            GameStatus::Ok(status_as_colors(&status))
         }
     }
+}
+
+fn status_as_colors(status: &WordStatus) -> Vec<Color> {
+    let mut colors: Vec<Color> = Vec::new();
+    for ls in status.iter() {
+        let color = match ls {
+            LetterStatus::Grey => TILE_GREY_COLOR,
+            LetterStatus::Yellow => TILE_YELLOW_COLOR,
+            LetterStatus::Green => TILE_GREEN_COLOR,
+        };
+        colors.push(color);
+    }
+    colors
 }
 
 struct Cursor {
@@ -228,6 +241,7 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>
     }
 }
 
+/// This currently contains all the logic, which shouldn't be the case
 fn keyboard_input(
     mut char_evr: EventReader<ReceivedCharacter>,
     keys: Res<Input<KeyCode>>,
@@ -235,6 +249,7 @@ fn keyboard_input(
     mut cursor: ResMut<Cursor>,
     mut value_q: Query<(&mut Value, &TilePosition), With<Tile>>,
     mut text_q: Query<(&mut Text, &TilePosition), With<TextTileValue>>,
+    mut game: ResMut<Game>,
 ) {
     for ev in char_evr.iter() {
         println!("Got char: '{}'", ev.char);
@@ -251,16 +266,52 @@ fn keyboard_input(
                     val.0 = label.clone();
                 }
             }
-            cursor.position.col += 1;
+            cursor.position.col = (cursor.position.col + 1).min(5);
+            println!("Cursor {:?}", cursor.position);
         }
     }
 
-    if keys.just_pressed(KeyCode::Return) && guess.word.len() == 5 {
+    if keys.just_released(KeyCode::Return) && guess.word.len() == 5 {
         println!("Text input: {}", guess.word);
-        guess.word.clear();
-        cursor.position.col = 0;
-        cursor.position.row += 1;
+        match game.make_guess_simple(&guess.word.to_lowercase()) {
+            GameStatus::Ok(val) => {
+                game.colors[cursor.position.row] = val;
+                guess.word.clear();
+                cursor.position.col = 0;
+                cursor.position.row += 1;
+            }
+            GameStatus::InvalidWord => {
+                println!("Invalid word");
+            }
+            GameStatus::GameOver => {
+                println!("Game Over");
+            }
+            GameStatus::Victory(val) => {
+                game.colors[cursor.position.row] = val;
+                println!("VICTORY!");
+            }
+        }
+        println!("Cursor {:?}", cursor.position);
     }
 
-    // println!("Cursor {:?}", cursor.position);
+    if keys.just_released(KeyCode::Back) {
+        println!("Removing last letter");
+        guess.word.pop();
+        if cursor.position.col != 0 {
+            cursor.position.col -= 1;
+        } else {
+            cursor.position.col = 0;
+        }
+        for (mut text, pos) in text_q.iter_mut() {
+            if cursor.position == *pos {
+                text.sections[0].value.clear();
+            }
+        }
+        for (mut val, pos) in value_q.iter_mut() {
+            if cursor.position == *pos {
+                val.0.clear();
+            }
+        }
+        println!("Cursor {:?}", cursor.position);
+    }
 }
