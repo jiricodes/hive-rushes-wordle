@@ -1,4 +1,6 @@
 use crate::components::*;
+use bevy::input::keyboard::{KeyCode, KeyboardInput};
+use bevy::input::ElementState;
 use bevy::prelude::*;
 use clap::{Arg as ClapArg, Command as ClapCommand};
 use lib::database::Database;
@@ -75,6 +77,11 @@ impl Default for Cursor {
     }
 }
 
+#[derive(Default)]
+struct CurrentGuess {
+    pub word: String,
+}
+
 // Tiles
 const TILE_SIZE: f32 = 100.0;
 const TILE_DEFAULT_COLOR: Color = Color::rgb(252.0 / 255.0, 255.0 / 255.0, 252.0 / 255.0);
@@ -107,6 +114,7 @@ impl Plugin for GamePlugin {
             .expect("dict file expected as argument");
         let game = Game::new(path);
         let cursor = Cursor::default();
+        let guess = CurrentGuess::default();
         app.insert_resource(WindowDescriptor {
             width: 800.0,
             height: 600.0,
@@ -115,6 +123,7 @@ impl Plugin for GamePlugin {
         })
         .insert_resource(game)
         .insert_resource(cursor)
+        .insert_resource(guess)
         .add_system_set_to_stage(
             CoreStage::PostUpdate,
             SystemSet::new()
@@ -123,7 +132,8 @@ impl Plugin for GamePlugin {
                 .with_system(tile_color_system),
         )
         .add_startup_system(camera_setup)
-        .add_startup_system(setup);
+        .add_startup_system(setup)
+        .add_system(keyboard_input);
     }
 }
 
@@ -194,14 +204,21 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>
                     ..Default::default()
                 })
                 .with_children(|parent| {
-                    parent.spawn_bundle(Text2dBundle {
-                        text: Text::with_section(label.clone(), text_style.clone(), text_alignment),
-                        transform: Transform {
-                            translation: Vec3::new(0.0, 0.0, 1.0),
+                    parent
+                        .spawn_bundle(Text2dBundle {
+                            text: Text::with_section(
+                                label.clone(),
+                                text_style.clone(),
+                                text_alignment,
+                            ),
+                            transform: Transform {
+                                translation: Vec3::new(0.0, 0.0, 1.0),
+                                ..Default::default()
+                            },
                             ..Default::default()
-                        },
-                        ..Default::default()
-                    });
+                        })
+                        .insert(TextTileValue)
+                        .insert(TilePosition { row, col });
                 })
                 .insert(Tile)
                 .insert(Value(label))
@@ -209,4 +226,41 @@ fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>
                 .insert(TilePosition { row, col });
         }
     }
+}
+
+fn keyboard_input(
+    mut char_evr: EventReader<ReceivedCharacter>,
+    keys: Res<Input<KeyCode>>,
+    mut guess: ResMut<CurrentGuess>,
+    mut cursor: ResMut<Cursor>,
+    mut value_q: Query<(&mut Value, &TilePosition), With<Tile>>,
+    mut text_q: Query<(&mut Text, &TilePosition), With<TextTileValue>>,
+) {
+    for ev in char_evr.iter() {
+        println!("Got char: '{}'", ev.char);
+        if ev.char.is_ascii_alphabetic() && guess.word.len() < 5 {
+            let label = format!("{}", ev.char).to_uppercase();
+            guess.word.push(ev.char);
+            for (mut text, pos) in text_q.iter_mut() {
+                if cursor.position == *pos {
+                    text.sections[0].value = label.clone();
+                }
+            }
+            for (mut val, pos) in value_q.iter_mut() {
+                if cursor.position == *pos {
+                    val.0 = label.clone();
+                }
+            }
+            cursor.position.col += 1;
+        }
+    }
+
+    if keys.just_pressed(KeyCode::Return) && guess.word.len() == 5 {
+        println!("Text input: {}", guess.word);
+        guess.word.clear();
+        cursor.position.col = 0;
+        cursor.position.row += 1;
+    }
+
+    // println!("Cursor {:?}", cursor.position);
 }

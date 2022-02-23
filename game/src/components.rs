@@ -17,3 +17,6 @@ pub struct TileSize {
 
 #[derive(Component)]
 pub struct Value(pub String);
+
+#[derive(Component)]
+pub struct TextTileValue;
