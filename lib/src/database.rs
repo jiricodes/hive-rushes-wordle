@@ -134,18 +134,30 @@ impl Database {
         &self.available
     }
 
-    /// Wrapper for GREEN status - aka correct letter at correct position
+    /// GREEN status - aka correct letter at correct position
+    ///
+    /// This results in moving all words that do not have given
+    /// `letter` at the specific `position` from available set to
+    /// discarded set.
     pub fn prune_green(&mut self, letter: char, position: usize) {
         self.prune_letter_at_position(letter, position);
     }
 
-    /// Wrapper for YELLOW status - aka  correct letter at incorrect position
+    /// YELLOW status - aka  correct letter at incorrect position
+    ///
+    /// This results in moving all words that HAVE given
+    /// `letter` at the specific `position` from available set to
+    /// discarded set. Also all words that do not contain `letter` at all.
     pub fn prune_yellow(&mut self, letter: char, position: usize) {
         self.prune_letter_at_incorrect_position(letter, position);
         self.prune_letter_any_position(letter);
     }
 
-    /// Wrapper for GREY status - aka incorrect letter
+    /// GREY status - aka incorrect letter
+    ///
+    /// This results in moving all words that contain given
+    /// `letter` from available set to
+    /// discarded set.
     pub fn prune_grey(&mut self, letter: char) {
         self.prune_letter(letter);
     }
