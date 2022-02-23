@@ -48,7 +48,7 @@ impl Database {
         let reader = BufReader::new(file);
         let mut all_words: IndexSet<String> = IndexSet::new();
         for line in reader.lines() {
-            all_words.insert(line.expect("line error"));
+            all_words.insert(line.expect("line error").to_lowercase());
         }
         Self {
             available: all_words,

@@ -1,0 +1,19 @@
+use bevy::prelude::*;
+
+#[derive(Component)]
+pub struct Tile;
+
+#[derive(Component, PartialEq, Clone, Copy, Debug)]
+pub struct TilePosition {
+    pub row: usize,
+    pub col: usize,
+}
+
+#[derive(Component)]
+pub struct TileSize {
+    pub x: f32,
+    pub y: f32,
+}
+
+#[derive(Component)]
+pub struct Value(pub String);

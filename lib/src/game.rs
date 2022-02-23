@@ -84,6 +84,11 @@ impl Wordle {
         self.max_attempts = limit;
     }
 
+    /// Max attempts getter
+    pub fn get_max_attempts(&self) -> usize {
+        self.max_attempts
+    }
+
     /// Check if game is over
     ///
     /// Returns bool if `attempts` >= `max_attempts`
