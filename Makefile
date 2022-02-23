@@ -1,5 +1,7 @@
 MAKEOPTIONS=--no-print-directory
 
+.PHONY: game
+
 all:
 	@make $(MAKEOPTIONS) test
 
