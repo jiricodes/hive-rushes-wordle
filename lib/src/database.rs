@@ -161,6 +161,22 @@ impl Database {
     pub fn prune_grey(&mut self, letter: char) {
         self.prune_letter(letter);
     }
+
+    /// Checks if given `word` is in the database
+    /// either available or discarded
+    pub fn contains(&self, word: &String) -> bool {
+        self.available_contains(word) || self.discarded_contains(word)
+    }
+
+    /// Checks if the `available` set contains given `word`
+    fn available_contains(&self, word: &String) -> bool {
+        self.available.contains(word)
+    }
+
+    /// Checks if the `discarded` set contains given `word`
+    fn discarded_contains(&self, word: &String) -> bool {
+        self.discarded.contains(word)
+    }
 }
 
 impl Default for Database {
