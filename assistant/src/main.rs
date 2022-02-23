@@ -1,3 +1,8 @@
+mod assistant;
+mod suggestion;
+use assistant::Assistant;
+
+/// Currently used for testing
 fn main() {
-    println!("Hello, world!");
+    let assistant = Assistant::new();
 }
