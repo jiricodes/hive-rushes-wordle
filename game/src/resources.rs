@@ -69,6 +69,10 @@ impl Game {
 		self.guesses = vec![None; self.wordle.get_max_attempts()];
 		self.colors = vec![vec![TILE_DEFAULT_COLOR; 5]; self.wordle.get_max_attempts()];
 	}
+
+	pub fn is_over(&self) -> bool {
+		self.wordle.game_over()
+	}
 }
 
 pub fn status_as_colors(status: &WordStatus) -> Vec<Color> {

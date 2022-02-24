@@ -26,8 +26,15 @@ impl Plugin for GamePlugin {
 				.with_system(tile_size_system)
 				.with_system(tile_position_system)
 				.with_system(tile_color_system)
-				.with_system(keyboard_input),
+				.with_system(keyboard_input)
+				.with_system(gameover_check),
 		);
+	}
+}
+
+fn gameover_check(mut state: ResMut<State<GameState>>, game: Res<Game>) {
+	if game.is_over() {
+		state.set(GameState::GameOver).unwrap();
 	}
 }
 
@@ -79,12 +86,7 @@ fn camera_setup(mut commands: Commands) {
 }
 
 /// Game setup handler
-fn setup(
-	mut commands: Commands,
-	asset_server: Res<AssetServer>,
-	game: Res<Game>,
-	mut state: ResMut<State<GameState>>,
-) {
+fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>) {
 	let font_handle: Handle<Font> = asset_server.load(FONT_PATH);
 	let text_style = TextStyle {
 		font: font_handle,
@@ -183,10 +185,12 @@ fn keyboard_input(
 			}
 			GameStatus::GameOver => {
 				println!("Game Over");
+				state.set(GameState::GameOver).unwrap();
 			}
 			GameStatus::Victory(val) => {
 				game.colors[cursor.position.row] = val;
 				println!("VICTORY!");
+				state.set(GameState::Victory).unwrap();
 			}
 		}
 		// println!("Cursor {:?}", cursor.position);

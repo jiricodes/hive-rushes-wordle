@@ -7,6 +7,7 @@ mod states;
 mod utils;
 
 use game_plugin::GamePlugin;
+use no_game_plugin::{GameOverPlugin, VictoryPlugin};
 use resources::{CurrentGuess, Cursor, Game};
 use states::GameState;
 
@@ -38,5 +39,7 @@ fn main() {
 		.add_plugins(DefaultPlugins)
 		.add_state(GameState::InGame)
 		.add_plugin(GamePlugin)
+		.add_plugin(GameOverPlugin)
+		.add_plugin(VictoryPlugin)
 		.run();
 }
