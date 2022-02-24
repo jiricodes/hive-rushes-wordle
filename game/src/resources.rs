@@ -2,7 +2,7 @@ use crate::components::*;
 use crate::consts::*;
 use bevy::prelude::*;
 use lib::database::Database;
-use lib::game::{status_green, LetterStatus, WordStatus, Wordle};
+use lib::game::{LetterStatus, WordStatus, Wordle};
 use std::fmt::Debug;
 use std::path::Path;
 
@@ -23,6 +23,7 @@ pub struct Game {
 	database: Database,
 	pub guesses: Vec<Option<String>>,
 	pub colors: Vec<Vec<Color>>,
+	win: bool,
 }
 
 impl Game {
@@ -35,6 +36,8 @@ impl Game {
 	{
 		let database = Database::load(filename);
 		let word = database.get_random();
+		// Sanity check - word lenght
+		assert!(word.len() == 5, "Word lenght is not 5");
 		println!("Wordle game with: {}", word);
 		let wordle = Wordle::new(word);
 		let limit = wordle.get_max_attempts();
@@ -43,6 +46,7 @@ impl Game {
 			database,
 			guesses: vec![None; limit],
 			colors: vec![vec![TILE_DEFAULT_COLOR; 5]; limit],
+			win: false,
 		}
 	}
 
@@ -54,7 +58,8 @@ impl Game {
 			return GameStatus::GameOver;
 		}
 		let status = &self.wordle.guess_word(word);
-		if status_green(&status) {
+		if status.is_correct() {
+			self.win = true;
 			return GameStatus::Victory(status_as_colors(&status));
 		} else {
 			GameStatus::Ok(status_as_colors(&status))
@@ -68,10 +73,15 @@ impl Game {
 		self.wordle = Wordle::new(word);
 		self.guesses = vec![None; self.wordle.get_max_attempts()];
 		self.colors = vec![vec![TILE_DEFAULT_COLOR; 5]; self.wordle.get_max_attempts()];
+		self.win = false;
 	}
 
-	pub fn is_over(&self) -> bool {
+	pub fn is_lost(&self) -> bool {
 		self.wordle.game_over()
+	}
+
+	pub fn is_won(&self) -> bool {
+		self.win
 	}
 }
 
@@ -79,9 +89,9 @@ pub fn status_as_colors(status: &WordStatus) -> Vec<Color> {
 	let mut colors: Vec<Color> = Vec::new();
 	for ls in status.iter() {
 		let color = match ls {
-			LetterStatus::Grey => TILE_GREY_COLOR,
-			LetterStatus::Yellow => TILE_YELLOW_COLOR,
-			LetterStatus::Green => TILE_GREEN_COLOR,
+			LetterStatus::Grey(_) => TILE_GREY_COLOR,
+			LetterStatus::Yellow(_) => TILE_YELLOW_COLOR,
+			LetterStatus::Green(_) => TILE_GREEN_COLOR,
 		};
 		colors.push(color);
 	}

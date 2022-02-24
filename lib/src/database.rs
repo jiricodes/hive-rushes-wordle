@@ -50,6 +50,13 @@ impl Database {
 		for line in reader.lines() {
 			all_words.insert(line.expect("line error").to_lowercase());
 		}
+		let l = all_words[0].len();
+		for word in all_words.iter() {
+			assert!(
+				word.len() == l,
+				"Words in supplied dictionary are not of same length"
+			);
+		}
 		Self {
 			available: all_words,
 			..Default::default()

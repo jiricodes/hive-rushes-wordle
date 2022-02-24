@@ -83,6 +83,10 @@ impl WordStatus {
     pub fn len(&self) -> usize {
         self.data.len()
     }
+
+    pub fn iter(&self) -> std::slice::Iter<'_, LetterStatus> {
+        self.data.iter()
+    }
 }
 
 impl Default for WordStatus {

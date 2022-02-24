@@ -33,8 +33,10 @@ impl Plugin for GamePlugin {
 }
 
 fn gameover_check(mut state: ResMut<State<GameState>>, game: Res<Game>) {
-	if game.is_over() {
+	if game.is_lost() {
 		state.set(GameState::GameOver).unwrap();
+	} else if game.is_won() {
+		state.set(GameState::Victory).unwrap();
 	}
 }
 
@@ -191,7 +193,7 @@ fn keyboard_input(
 			GameStatus::Victory(val) => {
 				game.colors[cursor.position.row] = val;
 				// println!("VICTORY!");
-				state.set(GameState::Victory).unwrap();
+				// state.set(GameState::Victory).unwrap();
 			}
 		}
 		// println!("Cursor {:?}", cursor.position);
