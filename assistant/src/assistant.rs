@@ -45,7 +45,11 @@ impl Assistant {
     pub fn update(&mut self, input: &String) {
         //TODO: prune database based on available words and typed characters
         //TODO: update suggestions based on available words
-        //self.database.discard(input);
+        if self.database.available_contains(input) {
+            self.database.discard(input);
+        } else {
+            println!("Word not found in available");
+        }
         let available = self.database.get_available();
         self.suggestions = SuggestionCollection::from(available);
     }

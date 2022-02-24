@@ -173,7 +173,7 @@ impl Database {
     }
 
     /// Checks if the `available` set contains given `word`
-    fn available_contains(&self, word: &String) -> bool {
+    pub fn available_contains(&self, word: &String) -> bool {
         self.available.contains(word)
     }
 

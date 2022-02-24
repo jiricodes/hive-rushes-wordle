@@ -19,6 +19,7 @@ fn main() {
     print!("Insert current guess:");
     let _ = stdout().flush();
     stdin().read_line(&mut input).expect("Incorrect input"); // TODO: Validate length and that word is not in discarded
+    input.pop();
     println!("Input: {}", input);
     assistant.update(&input);
     assistant.display_suggestions();
