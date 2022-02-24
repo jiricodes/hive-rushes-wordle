@@ -29,8 +29,8 @@ impl Assistant {
     /// Displays viable solutions
     pub fn display_suggestions(&self) {
         let len = self.database.get_len();
-        let shown = if len < MAX_SUGGESTIONS { len } else { MAX_SUGGESTIONS };
-        println!("Showing {} out of {} suggestions", shown, len);
+        let limit = len.min(MAX_SUGGESTIONS);
+        println!("Showing {} out of {} suggestions", limit, len);
         println!(
             "{:<width$}{:<width$}",
             "Suggestion",
@@ -79,6 +79,10 @@ impl Assistant {
 
     pub fn get_random(&mut self) -> Option<String> {
         self.suggestions.get_random_most_unique()
+    }
+
+    pub fn suggestions_empty(&self) -> bool {
+        self.suggestions.items.is_empty()
     }
 }
 

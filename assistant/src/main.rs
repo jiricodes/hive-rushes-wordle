@@ -4,7 +4,7 @@ use std::io::{stdin, stdout, Write};
 
 /// Currently used for testing
 fn main() {
-        let args = ClapCommand::new("add macro here")
+        let args = ClapCommand::new("Wordle Assistant")
                 .arg(ClapArg::new("dict").index(1))
                 .after_help("Words dictionary")
                 .get_matches();
@@ -14,7 +14,7 @@ fn main() {
         let mut assistant = Assistant::new(path);
         for _ in 0..6 {
                 let mut input = String::new();
-                print!("Insert current guess:");
+                print!("\nInsert current guess:");
                 let _ = stdout().flush();
                 stdin().read_line(&mut input).expect("Incorrect input"); // TODO: Validate length and that word is not in discarded
                 input.pop();
@@ -30,6 +30,12 @@ fn main() {
                     break;
                 }
                 assistant.update(&input, &status);
-                assistant.display_suggestions();
+                println!("");
+                if assistant.suggestions_empty() {
+                        println!("Out of suggestions, did you win?");
+                        break;
+                } else {
+                        assistant.display_suggestions();
+                }
         }
 }

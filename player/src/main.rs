@@ -4,7 +4,7 @@ use std::io::{stdin, stdout, Write};
 
 /// Currently used for testing
 fn main() {
-    let args = ClapCommand::new("add macro here")
+    let args = ClapCommand::new("Wordle Player")
         .arg(ClapArg::new("dict").index(1))
         .after_help("Words dictionary")
         .get_matches();
@@ -21,11 +21,11 @@ fn main() {
             println!("Out of suggestions, did you win?");
             break;
         }
-        println!("Try this next: {}", word);
+        println!("\nTry this next: {}", word);
         let mut status = String::new();
         print!("Insert status string [GYX]:");
         let _ = stdout().flush();
-        stdin().read_line(&mut status).expect("Incorrect input"); // TODO: Validate length and that word is not in discarded
+        stdin().read_line(&mut status).expect("Incorrect input");
         status.pop();
         status = status.to_uppercase();
         assistant.update(&word, &status);
