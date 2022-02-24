@@ -20,3 +20,12 @@ pub struct Value(pub String);
 
 #[derive(Component)]
 pub struct TextTileValue;
+
+#[derive(Component)]
+pub struct VictoryScreen;
+
+#[derive(Component)]
+pub struct GameOverScreen;
+
+#[derive(Component)]
+pub struct IncorrectWordScreen;
