@@ -98,6 +98,9 @@ fn victory_update(mut keys: ResMut<Input<KeyCode>>, mut state: ResMut<State<Game
 
 fn victory_exit(mut commands: Commands) {}
 
+struct IncorrectWordTimer(Timer);
+const INCORRECTWORD_SEC: f32 = 1.0;
+
 pub struct IncorrectWordPlugin;
 
 impl Plugin for IncorrectWordPlugin {
@@ -116,9 +119,51 @@ impl Plugin for IncorrectWordPlugin {
 	}
 }
 
-fn incorrectword_setup(mut commands: Commands) {}
+fn incorrectword_setup(mut commands: Commands, asset_server: Res<AssetServer>) {
+	let font_handle: Handle<Font> = asset_server.load(FONT_PATH);
+	let text_style = TextStyle {
+		font: font_handle,
+		font_size: 80.0,
+		color: Color::RED,
+	};
+	let text_alignment = TextAlignment {
+		vertical: VerticalAlign::Center,
+		horizontal: HorizontalAlign::Center,
+	};
+	commands
+		.spawn_bundle(Text2dBundle {
+			text: Text::with_section(
+				"Incorrect Word".to_string(),
+				text_style.clone(),
+				text_alignment,
+			),
+			transform: Transform {
+				translation: Vec3::new(0.0, 0.0, 2.0),
+				..Default::default()
+			},
+			..Default::default()
+		})
+		.insert(IncorrectWordScreen);
+}
 
-fn incorrectword_udate(mut commands: Commands) {}
+fn incorrectword_udate(
+	mut key_evr: EventReader<KeyboardInput>,
+	mut state: ResMut<State<GameState>>,
+) {
+	let mut exit_state = false;
+	for ev in key_evr.iter() {
+		match ev.state {
+			ElementState::Released => {
+				exit_state = true;
+				break;
+			}
+			_ => {}
+		}
+	}
+	if exit_state {
+		state.pop().unwrap()
+	}
+}
 
 fn incorrectword_exit(mut commands: Commands) {}
 

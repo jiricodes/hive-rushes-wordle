@@ -181,15 +181,16 @@ fn keyboard_input(
 				cursor.position.row += 1;
 			}
 			GameStatus::InvalidWord => {
-				println!("Invalid word");
+				// println!("Invalid word");
+				state.push(GameState::IncorrectWord).unwrap();
 			}
 			GameStatus::GameOver => {
-				println!("Game Over");
+				// println!("Game Over");
 				state.set(GameState::GameOver).unwrap();
 			}
 			GameStatus::Victory(val) => {
 				game.colors[cursor.position.row] = val;
-				println!("VICTORY!");
+				// println!("VICTORY!");
 				state.set(GameState::Victory).unwrap();
 			}
 		}
