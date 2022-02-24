@@ -32,9 +32,10 @@ impl Assistant {
         let limit = len.min(MAX_SUGGESTIONS);
         println!("Showing {} out of {} suggestions", limit, len);
         println!(
-            "{:<width$}{:<width$}",
+            "{:<width$}{:<width$}{}",
             "Suggestion",
             "Unique chars",
+            "Avg. frequency score",
             width = COL_WIDTH
         );
         let limit = MAX_SUGGESTIONS.min(self.suggestions.items.len());
@@ -74,7 +75,7 @@ impl Assistant {
         let mut greens_and_yellows = wordstatus.get_green_chars();
         greens_and_yellows.extend(wordstatus.get_yellow_chars().chars());
         self.suggestions.update_with_info(&greens_and_yellows);
-        self.suggestions.sort_suggestions();
+        self.suggestions.sort_suggestions_freq();
     }
 
     pub fn get_random(&mut self) -> Option<String> {

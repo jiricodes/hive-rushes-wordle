@@ -1,6 +1,9 @@
 use indexmap::IndexSet;
 use itertools::Itertools;
 use rand::seq::SliceRandom;
+use lazy_static::lazy_static;
+use crate::letter_frequency::LetterFrequencyMap;
+use std::cmp::Ordering::Equal;
 
 const COL_WIDTH: usize = 14;
 
@@ -18,6 +21,12 @@ impl SuggestionCollection {
     pub fn sort_suggestions(&mut self) {
         self.items
             .sort_by(|a, b| b.unique_chars.cmp(&a.unique_chars));
+    }
+
+    /// Sort based on n of frequency score
+    pub fn sort_suggestions_freq(&mut self) {
+        self.items
+            .sort_by(|a, b| b.avg_frequency.partial_cmp(&a.avg_frequency).unwrap_or(Equal));
     }
 
     pub fn update_with_info(&mut self, info: &String) {
@@ -63,15 +72,29 @@ impl Default for SuggestionCollection {
     }
 }
 
+pub struct Suggestion {
+    word: String,
+    avg_frequency: f32,
+    unique_chars: i8,
+}
+
+/// Lazy static LetterFrequencyMap
+lazy_static! {
+    static ref FREQ_MAP: LetterFrequencyMap = LetterFrequencyMap::new();
+}
+
 fn unique_char_count(word: &String) -> i8 {
     let chars: Vec<char> = word.chars().collect::<Vec<_>>();
     chars.into_iter().unique().count() as i8
 }
 
-pub struct Suggestion {
-    word: String,
-    probability: f32,
-    unique_chars: i8,
+fn count_avg_freq(word: &String) -> f32 {
+    let mut sum: f32 = 0.0;
+    for c in word.chars() {
+        let val: &f32 = FREQ_MAP.get_frequency(c).unwrap_or(&0.0);
+        sum += f32::from(*val);
+    }
+    sum / 5.0
 }
 
 impl Suggestion {
@@ -80,16 +103,17 @@ impl Suggestion {
         Self {
             word: String::from(word),
             unique_chars: unique_char_count(word),
-            ..Self::default()
+            avg_frequency: count_avg_freq(word),
         }
     }
 
     /// Display word
     pub fn display(&self) {
         println!(
-            "{:<width$}{:<width$}",
+            "{:<width$}{:<width$}{:<width$}",
             &self.word,
             &self.unique_chars,
+            &self.avg_frequency,
             width = COL_WIDTH
         );
     }
@@ -112,7 +136,7 @@ impl Default for Suggestion {
     fn default() -> Self {
         Self {
             word: String::new(),
-            probability: 0.0,
+            avg_frequency: 0.0,
             unique_chars: 0,
         }
     }
