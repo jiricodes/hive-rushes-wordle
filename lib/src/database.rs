@@ -74,6 +74,10 @@ impl Database {
         self.discarded.insert(w);
     }
 
+    pub fn get_len(&self) -> usize {
+        self.available.len()
+    }
+
     /// Removes all words from the available set that DON'T HAVE given `letter` at specified `position`
     fn prune_letter_at_position(&mut self, letter: char, position: usize) {
         let mut to_prune: IndexSet<String> = IndexSet::new();

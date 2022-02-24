@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 indexmap = "1.8.0"
+itertools = "0.10.2"
 lib = { path = "../lib" }
 clap = "3.1.1"

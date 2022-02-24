@@ -1,4 +1,7 @@
 use indexmap::IndexSet;
+use itertools::Itertools;
+
+const COL_WIDTH: usize = 14;
 
 pub struct SuggestionCollection {
     pub items: Vec<Suggestion>,
@@ -36,6 +39,11 @@ impl Default for SuggestionCollection {
     }
 }
 
+fn unique_char_count(word: &String) -> i8 {
+    let chars: Vec<char> = word.chars().collect::<Vec<_>>();
+    chars.into_iter().unique().count() as i8
+}
+
 pub struct Suggestion {
     word: String,
     probability: f32,
@@ -48,13 +56,14 @@ impl Suggestion {
     pub fn new(word: &String) -> Self {
         Self {
             word: String::from(word),
+            unique_chars: unique_char_count(word),
             ..Self::default()
         }
     }
 
     /// Display word
     pub fn display(&self) {
-        println!("{} {}", &self.word, &self.probability);
+        println!("{:<width$}{:<width$}", &self.word, &self.unique_chars, width = COL_WIDTH);
     }
 
 }
