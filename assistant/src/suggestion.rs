@@ -1,3 +1,5 @@
+use indexmap::IndexSet;
+
 pub struct SuggestionCollection {
     pub items: Vec<Suggestion>,
 }
@@ -15,12 +17,11 @@ impl SuggestionCollection {
     }
 }
 
-impl From<&Vec<String>> for SuggestionCollection {
-    fn from(string_vector: &Vec<String>) -> Self {
+impl From<&IndexSet<String>> for SuggestionCollection {
+    fn from(available: &IndexSet<String>) -> Self {
         let mut suggestion_collection = SuggestionCollection::new();
-        for word in string_vector.iter() {
-            let mut suggestion = Suggestion::new();
-            suggestion.word = word.clone();
+        for word in available.iter() {
+            let mut suggestion = Suggestion::new(word);
             suggestion_collection.items.push(suggestion);
         }
         suggestion_collection
@@ -44,8 +45,11 @@ pub struct Suggestion {
 impl Suggestion {
 
     /// Constructor
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new(word: &String) -> Self {
+        Self {
+            word: String::from(word),
+            ..Self::default()
+        }
     }
 
     /// Display word

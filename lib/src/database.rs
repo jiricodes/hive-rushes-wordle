@@ -66,7 +66,7 @@ impl Database {
 
     /// Moves given word from available to discarded
     /// Panics if word not in the available set
-    fn discard(&mut self, word: &String) {
+    pub fn discard(&mut self, word: &String) {
         let w = self
             .available
             .take(word)
