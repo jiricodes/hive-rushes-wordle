@@ -127,11 +127,37 @@ impl Database {
 		}
 	}
 
+	/// Removes all words that don't have enough instances of given letter
+	fn prune_less_than_n_letter(&mut self, letter: char, n: usize) {
+		let mut to_prune: IndexSet<String> = IndexSet::new();
+		for word in self.available.iter() {
+			if n > word.matches(letter).count() {
+				to_prune.insert(word.clone());
+			}
+		}
+		for word in to_prune.iter() {
+			self.discard(word);
+		}
+	}
+
 	/// Removes all words that contain specific letter
 	fn prune_letter(&mut self, letter: char) {
 		let mut to_prune: IndexSet<String> = IndexSet::new();
 		for word in self.available.iter() {
 			if word.contains(letter) {
+				to_prune.insert(word.clone());
+			}
+		}
+		for word in to_prune.iter() {
+			self.discard(word);
+		}
+	}
+
+	/// Removes all words that contain more than n instances of given letter
+	fn prune_more_than_n_letter(&mut self, letter: char, n: usize) {
+		let mut to_prune: IndexSet<String> = IndexSet::new();
+		for word in self.available.iter() {
+			if word.matches(letter).count() > n {
 				to_prune.insert(word.clone());
 			}
 		}
@@ -164,6 +190,11 @@ impl Database {
 		self.prune_letter_any_position(letter);
 	}
 
+	pub fn prune_n_yellow(&mut self, letter: char, position: usize, count: usize) {
+		self.prune_letter_at_incorrect_position(letter, position);
+		self.prune_less_than_n_letter(letter, count);
+	}
+
 	/// GREY status - aka incorrect letter
 	///
 	/// This results in moving all words that contain given
@@ -171,6 +202,10 @@ impl Database {
 	/// discarded set.
 	pub fn prune_grey(&mut self, letter: char) {
 		self.prune_letter(letter);
+	}
+
+	pub fn prune_n_grey(&mut self, letter: char, count: usize) {
+		self.prune_more_than_n_letter(letter, count);
 	}
 
 	/// Checks if given `word` is in the database

@@ -8,7 +8,6 @@ pub struct SuggestionCollection {
 }
 
 impl SuggestionCollection {
-
     /// Constructor
     pub fn new() -> Self {
         Self::default()
@@ -16,7 +15,8 @@ impl SuggestionCollection {
 
     /// Sort based on n of unique chars
     pub fn sort_suggestions(&mut self) {
-        self.items.sort_by(|a, b| b.unique_chars.cmp(&a.unique_chars));
+        self.items
+            .sort_by(|a, b| b.unique_chars.cmp(&a.unique_chars));
     }
 }
 
@@ -24,7 +24,7 @@ impl From<&IndexSet<String>> for SuggestionCollection {
     fn from(available: &IndexSet<String>) -> Self {
         let mut suggestion_collection = SuggestionCollection::new();
         for word in available.iter() {
-            let mut suggestion = Suggestion::new(word);
+            let suggestion = Suggestion::new(word);
             suggestion_collection.items.push(suggestion);
         }
         suggestion_collection
@@ -33,9 +33,7 @@ impl From<&IndexSet<String>> for SuggestionCollection {
 
 impl Default for SuggestionCollection {
     fn default() -> Self {
-        Self {
-            items: Vec::new()
-        }
+        Self { items: Vec::new() }
     }
 }
 
@@ -51,7 +49,6 @@ pub struct Suggestion {
 }
 
 impl Suggestion {
-
     /// Constructor
     pub fn new(word: &String) -> Self {
         Self {
@@ -63,9 +60,13 @@ impl Suggestion {
 
     /// Display word
     pub fn display(&self) {
-        println!("{:<width$}{:<width$}", &self.word, &self.unique_chars, width = COL_WIDTH);
+        println!(
+            "{:<width$}{:<width$}",
+            &self.word,
+            &self.unique_chars,
+            width = COL_WIDTH
+        );
     }
-
 }
 
 impl Default for Suggestion {

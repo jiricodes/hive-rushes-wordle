@@ -38,6 +38,15 @@ impl LetterStatus {
             _ => false,
         }
     }
+
+    pub fn from_chars(c: char, status: char) -> Option<Self> {
+        match status {
+            'G' => Some(Self::Green(c)),
+            'X' => Some(Self::Grey(c)),
+            'Y' => Some(Self::Yellow(c)),
+            _ => None,
+        }
+    }
 }
 
 /// Struct to handle guessed word status
@@ -58,6 +67,20 @@ impl WordStatus {
             out += letterstatus.as_str();
         }
         out
+    }
+
+    pub fn from_strings(input: &String, status: &String) -> Self {
+        assert!(
+            input.len() == status.len(),
+            "Input and status strings are different lenght"
+        );
+        let s = status.to_uppercase();
+        let mut ret = Self::default();
+        for (p, c) in input.chars().enumerate() {
+            let sc = s.chars().nth(p).unwrap();
+            ret.push(LetterStatus::from_chars(c, sc).expect("Unknown char in status string"));
+        }
+        ret
     }
 
     /// Checks if all letters have `LetterStatus::Green`
