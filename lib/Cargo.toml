@@ -8,3 +8,4 @@ edition = "2021"
 [dependencies]
 indexmap = "1.8.0"
 rand = "0.8.5"
+itertools = "0.10.2"

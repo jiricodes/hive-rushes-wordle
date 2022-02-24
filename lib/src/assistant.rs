@@ -1,6 +1,6 @@
+use crate::database::Database;
+use crate::game::{LetterStatus, WordStatus};
 use crate::suggestion::*;
-use lib::database::Database;
-use lib::game::{LetterStatus, WordStatus};
 use std::fmt::Debug;
 use std::path::Path;
 
@@ -12,12 +12,6 @@ pub struct Assistant {
     suggestions: SuggestionCollection,
 }
 
-enum AssistantEnum {
-    Grey(char),
-    Green(char, usize),
-    Yellow(char, usize),
-}
-
 impl Assistant {
     /// Constructor
     pub fn new<P>(filename: P) -> Self
@@ -25,9 +19,10 @@ impl Assistant {
         P: AsRef<Path> + Debug,
     {
         let database = Database::load(filename);
+        let suggestions = SuggestionCollection::from(database.get_available());
         Self {
             database,
-            ..Self::default()
+            suggestions,
         }
     }
 
@@ -50,8 +45,6 @@ impl Assistant {
     }
 
     pub fn update(&mut self, input: &String, status_string: &String) {
-        //TODO: prune database based on available words and typed characters
-        //TODO: update suggestions based on available words
         if self.database.available_contains(input) {
             self.database.discard(input);
         } else {
@@ -72,10 +65,20 @@ impl Assistant {
                 }
             }
         }
-
         let available = self.database.get_available();
         self.suggestions = SuggestionCollection::from(available);
+        // Update the unique counter by updating with current guess' greens and yellows
+        // Greens string is appended to the actual string then uniques are counted
+        // this is a dirty way to create duplicates threfore reduce unique letters
+        // TODO: add previous guesses
+        let mut greens_and_yellows = wordstatus.get_green_chars();
+        greens_and_yellows.extend(wordstatus.get_yellow_chars().chars());
+        self.suggestions.update_with_info(&greens_and_yellows);
         self.suggestions.sort_suggestions();
+    }
+
+    pub fn get_random(&mut self) -> Option<String> {
+        self.suggestions.get_random_most_unique()
     }
 }
 

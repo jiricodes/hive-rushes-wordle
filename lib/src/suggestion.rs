@@ -1,5 +1,6 @@
 use indexmap::IndexSet;
 use itertools::Itertools;
+use rand::seq::SliceRandom;
 
 const COL_WIDTH: usize = 14;
 
@@ -17,6 +18,31 @@ impl SuggestionCollection {
     pub fn sort_suggestions(&mut self) {
         self.items
             .sort_by(|a, b| b.unique_chars.cmp(&a.unique_chars));
+    }
+
+    pub fn update_with_info(&mut self, info: &String) {
+        for word in self.items.iter_mut() {
+            word.update_unique_with_info(info);
+        }
+    }
+
+    pub fn max_unique(&mut self) -> i8 {
+        self.sort_suggestions();
+        self.items[0].get_unique_chars()
+    }
+
+    pub fn get_random_most_unique(&mut self) -> Option<String> {
+        if self.items.is_empty() {
+            return None;
+        }
+        let max_unique = self.max_unique();
+        let mut max_arr: Vec<String> = Vec::new();
+        for sugg in self.items.iter() {
+            if sugg.get_unique_chars() >= max_unique {
+                max_arr.push(sugg.get_word_clone())
+            }
+        }
+        max_arr.choose(&mut rand::thread_rng()).cloned()
     }
 }
 
@@ -66,6 +92,19 @@ impl Suggestion {
             &self.unique_chars,
             width = COL_WIDTH
         );
+    }
+
+    pub fn update_unique_with_info(&mut self, info: &String) {
+        let s = self.word.clone() + info;
+        self.unique_chars = unique_char_count(&s);
+    }
+
+    pub fn get_unique_chars(&self) -> i8 {
+        self.unique_chars
+    }
+
+    pub fn get_word_clone(&self) -> String {
+        self.word.clone()
     }
 }
 
