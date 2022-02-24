@@ -1,154 +1,33 @@
 use crate::components::*;
+use crate::consts::*;
+use crate::resources::{CurrentGuess, Cursor, Game, GameStatus};
 use crate::states::GameState;
+use crate::utils::despawn_screen;
 use bevy::input::keyboard::{KeyCode, KeyboardInput};
 use bevy::input::ElementState;
 use bevy::prelude::*;
-use clap::{Arg as ClapArg, Command as ClapCommand};
-use lib::database::Database;
-use lib::game::{status_green, LetterStatus, WordStatus, Wordle};
-use std::fmt;
-use std::fmt::Debug;
-use std::path::Path;
-
-/// Enum to express gamestatus
-pub enum GameStatus<T> {
-	Ok(T),
-	InvalidWord,
-	GameOver,
-	Victory(T),
-}
-
-/// Core Wordle Game struct
-///
-/// wordle provides the rules api and guess feedback
-/// database can be used for word suggestions etc.
-pub struct Game {
-	wordle: Wordle,
-	database: Database,
-	pub guesses: Vec<Option<String>>,
-	pub colors: Vec<Vec<Color>>,
-}
-
-impl Game {
-	/// Constructor that requires path to database
-	///
-	/// TODO: change this perhaps to an object with `database` trait or similar
-	pub fn new<P>(filename: P) -> Self
-	where
-		P: AsRef<Path> + Debug,
-	{
-		let database = Database::load(filename);
-		let word = database.get_random();
-		println!("Wordle game with: {}", word);
-		let wordle = Wordle::new(word);
-		let limit = wordle.get_max_attempts();
-		Self {
-			wordle,
-			database,
-			guesses: vec![None; limit],
-			colors: vec![vec![TILE_DEFAULT_COLOR; 5]; limit],
-		}
-	}
-
-	pub fn make_guess_simple(&mut self, word: &String) -> GameStatus<Vec<Color>> {
-		if !self.database.contains(word) {
-			return GameStatus::InvalidWord;
-		}
-		if self.wordle.game_over() {
-			return GameStatus::GameOver;
-		}
-		let status = &self.wordle.guess_word(word);
-		if status_green(&status) {
-			return GameStatus::Victory(status_as_colors(&status));
-		} else {
-			GameStatus::Ok(status_as_colors(&status))
-		}
-	}
-}
-
-fn status_as_colors(status: &WordStatus) -> Vec<Color> {
-	let mut colors: Vec<Color> = Vec::new();
-	for ls in status.iter() {
-		let color = match ls {
-			LetterStatus::Grey => TILE_GREY_COLOR,
-			LetterStatus::Yellow => TILE_YELLOW_COLOR,
-			LetterStatus::Green => TILE_GREEN_COLOR,
-		};
-		colors.push(color);
-	}
-	colors
-}
-
-struct Cursor {
-	position: TilePosition,
-}
-
-impl Default for Cursor {
-	fn default() -> Self {
-		Self {
-			position: TilePosition { row: 0, col: 0 },
-		}
-	}
-}
-
-#[derive(Default)]
-struct CurrentGuess {
-	pub word: String,
-}
-
-// Tiles
-const TILE_SIZE: f32 = 100.0;
-const TILE_DEFAULT_COLOR: Color = Color::rgb(252.0 / 255.0, 255.0 / 255.0, 252.0 / 255.0);
-const TILE_GREEN_COLOR: Color = Color::rgb(36.0 / 255.0, 130.0 / 255.0, 50.0 / 255.0);
-const TILE_YELLOW_COLOR: Color = Color::rgb(255.0 / 255.0, 184.0 / 255.0, 0.0 / 255.0);
-const TILE_GREY_COLOR: Color = Color::rgb(57.0 / 255.0, 61.0 / 255.0, 63.0 / 255.0);
-
-// Font
-const FONT_PATH: &str = "fonts/VCR_OSD_MONO.ttf";
-const FONT_SIZE: f32 = 60.0;
-const FONT_COLOR: Color = Color::rgb(0.0 / 255.0, 0.0 / 255.0, 0.0 / 255.0);
-
-// Puzzle
-const WIDTH: f32 = 5.0;
-const HEIGHT: f32 = 6.0;
-const BACKGROUND: Color = Color::rgba(0.15, 0.15, 0.15, 0.9);
 
 pub struct GamePlugin;
 
 impl Plugin for GamePlugin {
 	fn build(&self, app: &mut App) {
-		let args = ClapCommand::new("add macro here")
-			.arg(ClapArg::new("dict").index(1))
-			.after_help("Words dictionary")
-			.get_matches();
-		let path = args
-			.value_of("dict")
-			.expect("dict file expected as argument");
-		let game = Game::new(path);
-		let cursor = Cursor::default();
-		let guess = CurrentGuess::default();
-		app.insert_resource(WindowDescriptor {
-			width: 800.0,
-			height: 600.0,
-			title: "Wordle".to_string(),
-			..Default::default()
-		})
-		.insert_resource(game)
-		.insert_resource(cursor)
-		.insert_resource(guess)
-		.add_system_set_to_stage(
-			CoreStage::PostUpdate,
-			SystemSet::new()
-				.with_system(tile_size_system)
-				.with_system(tile_position_system)
-				.with_system(tile_color_system),
+		app.add_system_set(
+			SystemSet::on_enter(GameState::Restarting)
+				.with_system(despawn_screen::<Tile>.system())
+				.with_system(restart_data),
 		)
 		.add_system_set(
 			SystemSet::on_enter(GameState::InGame)
 				.with_system(camera_setup)
 				.with_system(setup),
 		)
-		.add_system_set(SystemSet::on_update(GameState::InGame).with_system(keyboard_input));
+		.add_system_set(
+			SystemSet::on_update(GameState::InGame)
+				.with_system(tile_size_system)
+				.with_system(tile_position_system)
+				.with_system(tile_color_system)
+				.with_system(keyboard_input),
+		);
 	}
 }
 
@@ -182,6 +61,17 @@ fn tile_color_system(game: Res<Game>, mut q: Query<(&mut Sprite, &TilePosition),
 		sprite.color = game.colors[pos.row][pos.col];
 	}
 }
+fn restart_data(
+	mut state: ResMut<State<GameState>>,
+	mut game: ResMut<Game>,
+	mut cursor: ResMut<Cursor>,
+	mut guess: ResMut<CurrentGuess>,
+) {
+	game.reset();
+	cursor.position = TilePosition { row: 0, col: 0 };
+	guess.word.clear();
+	state.set(GameState::InGame).unwrap();
+}
 
 /// Camera setup
 fn camera_setup(mut commands: Commands) {
@@ -189,7 +79,12 @@ fn camera_setup(mut commands: Commands) {
 }
 
 /// Game setup handler
-fn setup(mut commands: Commands, asset_server: Res<AssetServer>, game: Res<Game>) {
+fn setup(
+	mut commands: Commands,
+	asset_server: Res<AssetServer>,
+	game: Res<Game>,
+	mut state: ResMut<State<GameState>>,
+) {
 	let font_handle: Handle<Font> = asset_server.load(FONT_PATH);
 	let text_style = TextStyle {
 		font: font_handle,
@@ -252,6 +147,7 @@ fn keyboard_input(
 	mut value_q: Query<(&mut Value, &TilePosition), With<Tile>>,
 	mut text_q: Query<(&mut Text, &TilePosition), With<TextTileValue>>,
 	mut game: ResMut<Game>,
+	mut state: ResMut<State<GameState>>,
 ) {
 	for ev in char_evr.iter() {
 		// println!("Got char: '{}'", ev.char);
@@ -315,5 +211,9 @@ fn keyboard_input(
 			}
 		}
 		// println!("Cursor {:?}", cursor.position);
+	}
+
+	if keys.just_released(KeyCode::Escape) {
+		state.set(GameState::Restarting).unwrap();
 	}
 }
