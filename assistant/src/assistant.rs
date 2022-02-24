@@ -34,7 +34,8 @@ impl Assistant {
     /// Displays viable solutions
     pub fn display_suggestions(&self) {
         let len = self.database.get_len();
-        println!("Showing {} out of {} suggestions", MAX_SUGGESTIONS, len);
+        let shown = if len < MAX_SUGGESTIONS { len } else { MAX_SUGGESTIONS };
+        println!("Showing {} out of {} suggestions", shown, len);
         println!(
             "{:<width$}{:<width$}",
             "Suggestion",

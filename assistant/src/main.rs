@@ -28,6 +28,10 @@ fn main() {
                 stdin().read_line(&mut status).expect("Incorrect input"); // TODO: Validate length and that word is not in discarded
                 status.pop();
                 status = status.to_uppercase();
+                if status == "GGGGG" {
+                    println!("Wordle solved.");
+                    break;
+                }
                 assistant.update(&input, &status);
                 assistant.display_suggestions();
         }
