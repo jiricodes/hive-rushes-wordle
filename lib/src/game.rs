@@ -10,48 +10,85 @@ use std::fmt::Display;
 /// Greem - letter at correct position
 #[derive(Debug, PartialEq, Eq)]
 pub enum LetterStatus {
-    Grey,
-    Yellow,
-    Green,
+    Grey(char),
+    Yellow(char),
+    Green(char),
 }
 
 impl LetterStatus {
     pub fn as_char(&self) -> char {
         match *self {
-            Self::Green => 'G',
-            Self::Grey => 'X',
-            Self::Yellow => 'Y',
+            Self::Green(_) => 'G',
+            Self::Grey(_) => 'X',
+            Self::Yellow(_) => 'Y',
         }
     }
 
     pub fn as_str(&self) -> &str {
         match *self {
-            Self::Green => "G",
-            Self::Grey => "X",
-            Self::Yellow => "Y",
+            Self::Green(_) => "G",
+            Self::Grey(_) => "X",
+            Self::Yellow(_) => "Y",
+        }
+    }
+
+    pub fn is_green(&self) -> bool {
+        match *self {
+            LetterStatus::Green(_) => true,
+            _ => false,
         }
     }
 }
 
-/// Custom Type, consider using struct instead
-pub type WordStatus = Vec<LetterStatus>;
-
-/// Helper function just to return the word status as `String`
-pub fn status_as_string(status: &WordStatus) -> String {
-    let mut out = String::new();
-    for letterstatus in status {
-        out += letterstatus.as_str();
-    }
-    out
+/// Struct to handle guessed word status
+pub struct WordStatus {
+    data: Vec<LetterStatus>,
 }
 
-pub fn status_green(status: &WordStatus) -> bool {
-    for letterstatus in status {
-        if *letterstatus != LetterStatus::Green {
-            return false;
-        }
+impl WordStatus {
+    /// Constructor
+    pub fn new() -> Self {
+        Self::default()
     }
-    true
+
+    /// Helper function just to return the word status as `String`
+    pub fn as_string(&self) -> String {
+        let mut out = String::new();
+        for letterstatus in self.data.iter() {
+            out += letterstatus.as_str();
+        }
+        out
+    }
+
+    /// Checks if all letters have `LetterStatus::Green`
+    pub fn is_correct(&self) -> bool {
+        for letterstatus in self.data.iter() {
+            if !letterstatus.is_green() {
+                return false;
+            }
+        }
+        true
+    }
+
+    /// Pushes LetterStatus to data
+    pub fn push(&mut self, letter_status: LetterStatus) {
+        self.data.push(letter_status)
+    }
+
+    /// Checks if data contains specific `LetterStatus`
+    pub fn contains(&self, letter_status: &LetterStatus) -> bool {
+        self.data.contains(letter_status)
+    }
+
+    pub fn len(&self) -> usize {
+        self.data.len()
+    }
+}
+
+impl Default for WordStatus {
+    fn default() -> Self {
+        Self { data: Vec::new() }
+    }
 }
 
 pub struct Wordle {
@@ -105,16 +142,16 @@ impl Wordle {
             "Guessed word is incorrect length"
         );
         // Return vector
-        let mut status: WordStatus = Vec::new();
+        let mut status = WordStatus::new();
         for (position, letter) in word.chars().enumerate() {
             let c = self.word.chars().nth(position).unwrap();
             // eprintln!("({}: {} | {})", position, letter, c);
             if letter == c {
-                status.push(LetterStatus::Green);
+                status.push(LetterStatus::Green(letter));
             } else if self.word.contains(letter) {
-                status.push(LetterStatus::Yellow);
+                status.push(LetterStatus::Yellow(letter));
             } else {
-                status.push(LetterStatus::Grey);
+                status.push(LetterStatus::Grey(letter));
             }
         }
         // Sanity check, There should be same number of elements in `status`
