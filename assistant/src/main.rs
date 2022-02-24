@@ -12,7 +12,7 @@ fn main() {
                 .value_of("dict")
                 .expect("dict file expected as argument");
         let mut assistant = Assistant::new(path);
-        for i in 0..6 {
+        for _ in 0..6 {
                 let mut input = String::new();
                 print!("Insert current guess:");
                 let _ = stdout().flush();

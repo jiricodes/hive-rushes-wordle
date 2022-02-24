@@ -138,6 +138,28 @@ impl WordStatus {
         }
         count
     }
+
+    pub fn get_green_chars(&self) -> String {
+        let mut ret = String::new();
+        for val in self.data.iter() {
+            match val {
+                LetterStatus::Green(c) => ret.push(*c),
+                _ => {}
+            }
+        }
+        ret
+    }
+
+    pub fn get_yellow_chars(&self) -> String {
+        let mut ret = String::new();
+        for val in self.data.iter() {
+            match val {
+                LetterStatus::Yellow(c) => ret.push(*c),
+                _ => {}
+            }
+        }
+        ret
+    }
 }
 
 impl Default for WordStatus {

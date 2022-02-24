@@ -1,6 +1,6 @@
 MAKEOPTIONS=--no-print-directory
 
-.PHONY: game assistant
+.PHONY: game assistant player
 
 all:
 	@make $(MAKEOPTIONS) test
@@ -22,3 +22,6 @@ game:
 
 assistant:
 	cargo run -p assistant -- data/possible_words.txt
+
+player:
+	cargo run -p player -- data/possible_words.txt
