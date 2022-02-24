@@ -29,34 +29,33 @@ Insert current guess:crane
 Insert status string [GYX]:gyxxy
 
 Showing 7 out of 7 suggestions
-Suggestion    Unique chars  
-cover         5             
-cider         5             
-cower         5             
-cyber         5             
-clerk         5             
-cheer         4             
-corer         4             
+Suggestion    Unique chars  Avg. frequency score
+corer         4             38.760002
+cheer         4             38.168
+cider         5             34.870003
+cower         5             32.346
+cover         5             32.058
+clerk         5             30.448002
+cyber         5             27.654001
 
 Insert current guess:cover
 Insert status string [GYX]:ggxgg
 
 Showing 2 out of 2 suggestions
-Suggestion    Unique chars  
-cower         5             
-corer         4             
+Suggestion    Unique chars  Avg. frequency score
+corer         4             38.760002
+cower         5             32.346
 
 Insert current guess:cower
 Insert status string [GYX]:ggxgg
 
 Showing 1 out of 1 suggestions
-Suggestion    Unique chars  
-corer         4             
+Suggestion    Unique chars  Avg. frequency score
+corer         4             38.760002
 
 Insert current guess:corer
 Insert status string [GYX]:ggggg
-
-Out of suggestions, did you win?
+Wordle solved.
 ```
 
 
