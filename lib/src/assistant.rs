@@ -1,6 +1,6 @@
+use crate::database::Database;
+use crate::game::{LetterStatus, WordStatus};
 use crate::suggestion::*;
-use lib::database::Database;
-use lib::game::{LetterStatus, WordStatus};
 use std::fmt::Debug;
 use std::path::Path;
 

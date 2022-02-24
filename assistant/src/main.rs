@@ -1,8 +1,5 @@
-mod assistant;
-mod suggestion;
-
-use assistant::Assistant;
 use clap::{Arg as ClapArg, Command as ClapCommand};
+use lib::assistant::Assistant;
 use std::io::{stdin, stdout, Write};
 
 /// Currently used for testing
