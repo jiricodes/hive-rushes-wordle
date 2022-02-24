@@ -8,7 +8,7 @@ use std::fmt::Display;
 /// Grey - letter not in word
 /// Yellow - letter in word
 /// Greem - letter at correct position
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq, Clone, Copy)]
 pub enum LetterStatus {
     Grey(char),
     Yellow(char),
@@ -75,6 +75,9 @@ impl WordStatus {
         self.data.push(letter_status)
     }
 
+    pub fn push_front(&mut self, letter_status: LetterStatus) {
+        self.data.insert(0, letter_status)
+    }
     /// Checks if data contains specific `LetterStatus`
     pub fn contains(&self, letter_status: &LetterStatus) -> bool {
         self.data.contains(letter_status)
@@ -86,6 +89,31 @@ impl WordStatus {
 
     pub fn iter(&self) -> std::slice::Iter<'_, LetterStatus> {
         self.data.iter()
+    }
+
+    /// tuple (green, yellow, greey)
+    pub fn char_count(&self, c: char) -> (usize, usize, usize) {
+        let mut count: (usize, usize, usize) = (0, 0, 0);
+        for status in self.data.iter() {
+            match status {
+                LetterStatus::Green(val) => {
+                    if *val == c {
+                        count.0 += 1;
+                    }
+                }
+                LetterStatus::Grey(val) => {
+                    if *val == c {
+                        count.2 += 1;
+                    }
+                }
+                LetterStatus::Yellow(val) => {
+                    if *val == c {
+                        count.1 += 1;
+                    }
+                }
+            }
+        }
+        count
     }
 }
 
@@ -158,13 +186,42 @@ impl Wordle {
                 status.push(LetterStatus::Grey(letter));
             }
         }
+
+        // Check for letters multiple instances
+        let mut result = WordStatus::new();
+        for letter_status in status.iter() {
+            match letter_status {
+                // We care only about yellows - greens are set and grey are as low as they can be
+                LetterStatus::Yellow(letter) => {
+                    let cnt_org = self.word.matches(*letter).count();
+                    let cnt_guess = word.matches(*letter).count();
+                    // if there's more instances than in original word
+                    if cnt_guess > cnt_org {
+                        // we check what kind of statuses they have
+                        // (green, yellow, grey)
+                        let cnt_status = status.char_count(*letter);
+                        let cnt_res = result.char_count(*letter);
+                        if cnt_status.0 + cnt_res.1 >= cnt_org {
+                            result.push(LetterStatus::Grey(*letter))
+                        } else {
+                            result.push(*letter_status)
+                        }
+                    } else {
+                        result.push(*letter_status);
+                    }
+                }
+                _ => {
+                    result.push(*letter_status);
+                }
+            }
+        }
         // Sanity check, There should be same number of elements in `status`
         // as is in the word
         assert!(
-            status.len() == word.len(),
+            result.len() == word.len(),
             "WordStatus as different length than the original word"
         );
         self.attempts += 1;
-        status
+        result
     }
 }
