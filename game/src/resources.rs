@@ -38,7 +38,7 @@ impl Game {
 		let word = database.get_random();
 		// Sanity check - word lenght
 		assert!(word.len() == 5, "Word lenght is not 5");
-		println!("Wordle game with: {}", word);
+		// println!("Wordle game with: {}", word);
 		let wordle = Wordle::new(word);
 		let limit = wordle.get_max_attempts();
 		Self {
@@ -69,7 +69,7 @@ impl Game {
 	pub fn reset(&mut self) {
 		self.database.reset();
 		let word = self.database.get_random();
-		println!("Wordle game with: {}", word);
+		// println!("Wordle game with: {}", word);
 		self.wordle = Wordle::new(word);
 		self.guesses = vec![None; self.wordle.get_max_attempts()];
 		self.colors = vec![vec![TILE_DEFAULT_COLOR; 5]; self.wordle.get_max_attempts()];

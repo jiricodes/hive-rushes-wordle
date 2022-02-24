@@ -33,10 +33,10 @@ impl Plugin for GamePlugin {
 }
 
 fn gameover_check(mut state: ResMut<State<GameState>>, game: Res<Game>) {
-	if game.is_lost() {
-		state.set(GameState::GameOver).unwrap();
-	} else if game.is_won() {
+	if game.is_won() {
 		state.set(GameState::Victory).unwrap();
+	} else if game.is_lost() {
+		state.set(GameState::GameOver).unwrap();
 	}
 }
 

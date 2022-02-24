@@ -15,7 +15,7 @@ use bevy::prelude::*;
 use clap::{Arg as ClapArg, Command as ClapCommand};
 
 fn main() {
-	let args = ClapCommand::new("add macro here")
+	let args = ClapCommand::new("Wordle Game")
 		.arg(ClapArg::new("dict").index(1))
 		.after_help("Words dictionary")
 		.get_matches();

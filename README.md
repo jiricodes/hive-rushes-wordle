@@ -16,16 +16,74 @@ In general it is recommended to have latest GPU drivers and Vulkan installed. If
 ## Usage
 There's makefile available in root directory to help users.
 
+You can use option `DICT` to alter path to used dictionary.
 ### Assistant
-Should help Wordle players with showing available words based on given feedback.
+Launch with `make assistant` and provide the last guessed letter followed by *status string*. The assistant then suggests top 25 words to try next.
+
+The *status string* is simply a sequence of letters corresponding to the color response of the game.
+Where 'X' == grey, 'Y' == yellow and 'G' == green. 
+
+**Example**
+```
+Insert current guess:crane
+Insert status string [GYX]:gyxxy
+
+Showing 7 out of 7 suggestions
+Suggestion    Unique chars  
+cover         5             
+cider         5             
+cower         5             
+cyber         5             
+clerk         5             
+cheer         4             
+corer         4             
+
+Insert current guess:cover
+Insert status string [GYX]:ggxgg
+
+Showing 2 out of 2 suggestions
+Suggestion    Unique chars  
+cower         5             
+corer         4             
+
+Insert current guess:cower
+Insert status string [GYX]:ggxgg
+
+Showing 1 out of 1 suggestions
+Suggestion    Unique chars  
+corer         4             
+
+Insert current guess:corer
+Insert status string [GYX]:ggggg
+
+Out of suggestions, did you win?
+```
+
 
 ### Player
-Should play the game itself
+Launch player with `make player`  command and use words it suggest to play the game, then provide feedback in format of *status string*.
+
+The *status string* is simply a sequence of letters corresponding to the color response of the game.
+Where 'X' == grey, 'Y' == yellow and 'G' == green. 
+
+**Example**
+```
+Try this next: binge
+Insert status string [GYX]:xyxyx
+
+Try this next: grimy
+Insert status string [GYX]:yyyxx
+
+Try this next: sprig
+Insert status string [GYX]:ggggg
+Out of suggestions, did you win?
+```
 
 ### Game
-Clone of the Wordle game, for your pleasure.
+Clone of the Wordle game, for your pleasure. Launch it with `make game` to use default dictionary or with  `make game DICT=path/to/dict` to use custom one.
 
-Default game can be launched with `make game`.
+The game is pretty straight forward. Text is captured in tiles and can be deleted with backspace or submitted with enter (return). Game restarts with escape.
+
 
 ## Contributors
 (Jiri Novotny)[jiricodes.com]
