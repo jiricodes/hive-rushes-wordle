@@ -63,7 +63,9 @@ impl Game {
 
 	pub fn reset(&mut self) {
 		self.database.reset();
-		self.wordle = Wordle::new(self.database.get_random());
+		let word = self.database.get_random();
+		println!("Wordle game with: {}", word);
+		self.wordle = Wordle::new(word);
 		self.guesses = vec![None; self.wordle.get_max_attempts()];
 		self.colors = vec![vec![TILE_DEFAULT_COLOR; 5]; self.wordle.get_max_attempts()];
 	}

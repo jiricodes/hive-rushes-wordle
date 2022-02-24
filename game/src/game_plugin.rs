@@ -141,7 +141,7 @@ fn setup(
 /// This currently contains all the logic, which shouldn't be the case
 fn keyboard_input(
 	mut char_evr: EventReader<ReceivedCharacter>,
-	keys: Res<Input<KeyCode>>,
+	mut keys: ResMut<Input<KeyCode>>,
 	mut guess: ResMut<CurrentGuess>,
 	mut cursor: ResMut<Cursor>,
 	mut value_q: Query<(&mut Value, &TilePosition), With<Tile>>,
@@ -215,5 +215,6 @@ fn keyboard_input(
 
 	if keys.just_released(KeyCode::Escape) {
 		state.set(GameState::Restarting).unwrap();
+		keys.reset(KeyCode::Escape);
 	}
 }
