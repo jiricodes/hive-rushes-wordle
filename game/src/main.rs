@@ -18,11 +18,23 @@ fn main() {
 	let args = ClapCommand::new("Wordle Game")
 		.arg(ClapArg::new("dict").index(1))
 		.after_help("Words dictionary")
+		.arg(
+			ClapArg::new("word")
+				.short('w')
+				.value_name("WORD")
+				.long("word")
+				.takes_value(true)
+				.help("Custom word to play"),
+		)
 		.get_matches();
 	let path = args
 		.value_of("dict")
 		.expect("dict file expected as argument");
-	let game = Game::new(path);
+	let mut game = Game::new(path);
+
+	if let Some(word) = args.value_of("word") {
+		game.reset_with_word(word.to_string())
+	}
 	let cursor = Cursor::default();
 	let guess = CurrentGuess::default();
 	App::new()

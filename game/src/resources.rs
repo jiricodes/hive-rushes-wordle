@@ -76,6 +76,18 @@ impl Game {
 		self.win = false;
 	}
 
+	pub fn reset_with_word(&mut self, word: String) {
+		self.database.reset();
+		assert!(
+			self.database.contains(&word),
+			"Database doesn't contain selected word"
+		);
+		self.wordle = Wordle::new(word);
+		self.guesses = vec![None; self.wordle.get_max_attempts()];
+		self.colors = vec![vec![TILE_DEFAULT_COLOR; 5]; self.wordle.get_max_attempts()];
+		self.win = false;
+	}
+
 	pub fn is_lost(&self) -> bool {
 		self.wordle.game_over()
 	}
