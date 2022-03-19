@@ -85,5 +85,6 @@ The game is pretty straight forward. Text is captured in tiles and can be delete
 
 
 ## Contributors
-(Jiri Novotny)[jiricodes.com]
-(Carl Nysten)[https://github.com/crl-n]
+[Jiri Novotny (jiricodes.com)](jiricodes.com)
+
+[Carl Nysten (github.com/crl-n)](https://github.com/crl-n)
